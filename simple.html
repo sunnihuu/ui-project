@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gather&Go - Intro Only</title>
+    <style>
+        :root {
+            --peach: #FFE5D9;
+            --peach-dark: #FFB8A3;
+            --lavender: #E8D5F2;
+            --lavender-dark: #D4B5E8;
+            --sky: #D4E8F7;
+            --sky-dark: #A8D5F0;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--peach) 0%, var(--lavender) 50%, var(--sky) 100%);
+            padding: 2rem;
+            text-align: center;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        
+        .subtitle {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #2C2C2C;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            margin-top: 3rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen">
+        <div class="logo">👥</div>
+        <h1>Gather&Go</h1>
+        <p class="subtitle">Plan faster. Go together.</p>
+        <button class="btn" onclick="testClick()">Get Started 🚀</button>
+        <div class="status" id="status">✅ Basic page working!</div>
+    </div>
+
+    <script>
+        console.log('✅ Simple intro page loaded successfully');
+        
+        function testClick() {
+            console.log('✅ Button click registered');
+            document.getElementById('status').innerHTML = '✅ Button works! Now try <a href="index.html" style="color: #FF6B6B;">opening the full app</a>';
+        }
+        
+        // Test if files are accessible
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+            
+            // Try to load app.js to check if it exists
+            fetch('app.js').then(r => {
+                if (r.ok) {
+                    console.log('✅ app.js exists (', r.status, ')');
+                } else {
+                    console.error('❌ app.js not found (', r.status, ')');
+                }
+            }).catch(e => {
+                console.error('❌ Error loading app.js:', e.message);
+            });
+            
+            fetch('styles.css').then(r => {
+                if (r.ok) {
+                    console.log('✅ styles.css exists (', r.status, ')');
+                } else {
+                    console.error('❌ styles.css not found (', r.status, ')');
+                }
+            }).catch(e => {
+                console.error('❌ Error loading styles.css:', e.message);
+            });
+        });
+    </script>
+</body>
+</html>
