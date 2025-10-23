@@ -667,10 +667,34 @@ function createScreens() {
 
 // ===== Initialize App =====
 function initApp() {
-    createScreens();
-    initIntroScreen();
-    app.isLoading = false;
+    console.log('App initializing...');
+    const appContainer = document.querySelector('#app');
+    console.log('App container found:', appContainer);
+    
+    if (!appContainer) {
+        console.error('ERROR: App container #app not found!');
+        return;
+    }
+    
+    try {
+        createScreens();
+        console.log('Screens created successfully');
+        initIntroScreen();
+        console.log('Intro screen initialized');
+        app.isLoading = false;
+        console.log('App initialization complete!');
+    } catch (error) {
+        console.error('Error during app initialization:', error);
+    }
 }
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initApp);
+
+// Fallback in case DOMContentLoaded fires before script loads
+if (document.readyState === 'loading') {
+    console.log('Document still loading...');
+} else {
+    console.log('Document already loaded, initializing app...');
+    initApp();
+}

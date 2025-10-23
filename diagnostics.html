@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gather&Go - Diagnostics</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: monospace; background: #f5f5f5; padding: 2rem; }
+        .diagnostics { max-width: 800px; margin: 0 auto; }
+        h1 { margin-bottom: 2rem; }
+        .section { background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h2 { margin-bottom: 1rem; color: #333; }
+        .status { padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 0.75rem 1.5rem; background: #FF6B6B; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+        button:hover { background: #FF5252; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="diagnostics">
+        <h1>🔍 Gather&Go Diagnostics</h1>
+        
+        <div class="section">
+            <h2>Environment Check</h2>
+            <div id="env"></div>
+        </div>
+        
+        <div class="section">
+            <h2>File Loading Check</h2>
+            <div id="files"></div>
+        </div>
+        
+        <div class="section">
+            <h2>DOM Check</h2>
+            <div id="dom"></div>
+        </div>
+        
+        <div class="section">
+            <h2>JavaScript Check</h2>
+            <div id="js"></div>
+        </div>
+        
+        <div class="section">
+            <h2>CSS Check</h2>
+            <div id="css"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Actions</h2>
+            <button onclick="testLoad()">Test Full App Load</button>
+            <button onclick="goToApp()">Go to Full App</button>
+            <div id="actions"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Console Output</h2>
+            <pre id="console" style="height: 200px; overflow-y: auto;"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Capture console
+        const consoleLogs = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            consoleLogs.push('LOG: ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            consoleLogs.push('ERROR: ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+            originalError.apply(console, args);
+        };
+        
+        function updateConsole() {
+            document.getElementById('console').textContent = consoleLogs.join('\n');
+        }
+        
+        // Environment
+        function checkEnvironment() {
+            const env = document.getElementById('env');
+            const checks = [
+                { name: 'Browser', value: navigator.userAgent.substring(0, 50) },
+                { name: 'URL', value: window.location.href },
+                { name: 'Document Ready', value: document.readyState }
+            ];
+            
+            env.innerHTML = checks.map(c => 
+                `<div class="status info">${c.name}: ${c.value}</div>`
+            ).join('');
+        }
+        
+        // Files
+        async function checkFiles() {
+            const files = document.getElementById('files');
+            const filesToCheck = ['index.html', 'styles.css', 'app.js'];
+            
+            for (const file of filesToCheck) {
+                try {
+                    const response = await fetch(file);
+                    const status = response.ok ? `pass` : `fail`;
+                    const statusText = response.ok ? `✅ ${response.status}` : `❌ ${response.status}`;
+                    files.innerHTML += `<div class="status ${status}">${file}: ${statusText}</div>`;
+                } catch (e) {
+                    files.innerHTML += `<div class="status fail">${file}: ❌ Error - ${e.message}</div>`;
+                }
+            }
+        }
+        
+        // DOM
+        function checkDOM() {
+            const dom = document.getElementById('dom');
+            const checks = [
+                { name: '#app', selector: '#app' },
+                { name: '.intro-screen', selector: '.intro-screen' },
+                { name: '.home-screen', selector: '.home-screen' }
+            ];
+            
+            dom.innerHTML = checks.map(c => {
+                const found = document.querySelector(c.selector);
+                const status = found ? 'pass' : 'fail';
+                const text = found ? `✅ Found` : `❌ Not found`;
+                return `<div class="status ${status}">${c.name}: ${text}</div>`;
+            }).join('');
+        }
+        
+        // JavaScript
+        function checkJS() {
+            const js = document.getElementById('js');
+            const functions = [
+                'initApp', 'createScreens', 'initIntroScreen', 'navigate', 
+                'startOnboarding', 'toggleInterest', 'addFriend'
+            ];
+            
+            js.innerHTML = functions.map(f => {
+                const exists = typeof window[f] === 'function';
+                const status = exists ? 'pass' : 'fail';
+                const text = exists ? `✅ Defined` : `❌ Not defined`;
+                return `<div class="status ${status}">window.${f}: ${text}</div>`;
+            }).join('');
+        }
+        
+        // CSS
+        function checkCSS() {
+            const css = document.getElementById('css');
+            const styles = window.getComputedStyle(document.body);
+            const checks = [
+                { name: 'Font-family', value: styles.fontFamily },
+                { name: 'Color scheme', value: 'Check for gradients' }
+            ];
+            
+            css.innerHTML = checks.map(c => 
+                `<div class="status info">${c.name}: ${c.value}</div>`
+            ).join('');
+        }
+        
+        function testLoad() {
+            const actions = document.getElementById('actions');
+            actions.innerHTML += '<div class="status info">Testing app initialization...</div>';
+            
+            try {
+                if (typeof initApp === 'function') {
+                    initApp();
+                    actions.innerHTML += '<div class="status pass">✅ App initialized!</div>';
+                } else {
+                    actions.innerHTML += '<div class="status fail">❌ initApp function not found</div>';
+                }
+            } catch (e) {
+                actions.innerHTML += `<div class="status fail">❌ Error: ${e.message}</div>`;
+                console.error('Test load error:', e);
+            }
+            updateConsole();
+        }
+        
+        function goToApp() {
+            window.location.href = 'index.html';
+        }
+        
+        // Run checks on load
+        window.addEventListener('load', function() {
+            console.log('Diagnostics page loaded');
+            checkEnvironment();
+            checkFiles();
+            checkDOM();
+            checkJS();
+            checkCSS();
+            updateConsole();
+        });
+        
+        // Initial check
+        if (document.readyState === 'loading') {
+            console.log('DOM still loading...');
+        } else {
+            checkEnvironment();
+            checkDOM();
+        }
+    </script>
+</body>
+</html>
