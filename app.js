@@ -652,49 +652,88 @@ function switchNav(section) {
 function createScreens() {
     const appContainer = document.querySelector('#app');
     
-    appContainer.innerHTML = `
-        <div class="intro-screen screen active"></div>
-        <div class="onboarding-screen screen"></div>
-        <div class="home-screen screen"></div>
-        <div class="create-event-screen screen"></div>
-        <div class="friends-input-screen screen"></div>
-        <div class="match-result-screen screen"></div>
-        <div class="bottom-nav"></div>
-    `;
+    if (!appContainer) {
+        console.error('CRITICAL ERROR: #app container not found!');
+        console.error('HTML should have: <div id="app"></div>');
+        return false;
+    }
     
-    setupNavigation();
+    try {
+        appContainer.innerHTML = `
+            <div class="intro-screen screen active"></div>
+            <div class="onboarding-screen screen"></div>
+            <div class="home-screen screen"></div>
+            <div class="create-event-screen screen"></div>
+            <div class="friends-input-screen screen"></div>
+            <div class="match-result-screen screen"></div>
+            <div class="bottom-nav"></div>
+        `;
+        console.log('Screens created successfully');
+    } catch (error) {
+        console.error('Error creating screens:', error);
+        return false;
+    }
+    
+    try {
+        setupNavigation();
+        console.log('Navigation setup successful');
+    } catch (error) {
+        console.error('Error setting up navigation:', error);
+        return false;
+    }
+    
+    return true;
 }
 
 // ===== Initialize App =====
 function initApp() {
-    console.log('App initializing...');
+    console.log('🚀 App initializing at:', new Date().toLocaleTimeString());
+    console.log('📄 Document ready state:', document.readyState);
+    
     const appContainer = document.querySelector('#app');
-    console.log('App container found:', appContainer);
+    console.log('📦 App container found:', !!appContainer);
     
     if (!appContainer) {
-        console.error('ERROR: App container #app not found!');
-        return;
+        console.error('❌ CRITICAL: App container #app not found!');
+        alert('ERROR: App container not found. Check index.html');
+        return false;
     }
     
     try {
-        createScreens();
-        console.log('Screens created successfully');
+        console.log('🔨 Creating screens...');
+        const screensOk = createScreens();
+        
+        if (!screensOk) {
+            console.error('❌ Failed to create screens');
+            return false;
+        }
+        
+        console.log('🎨 Initializing intro screen...');
         initIntroScreen();
-        console.log('Intro screen initialized');
+        
         app.isLoading = false;
-        console.log('App initialization complete!');
+        console.log('✅ App initialization complete!');
+        console.log('💡 Current screen:', app.currentScreen);
+        return true;
     } catch (error) {
-        console.error('Error during app initialization:', error);
+        console.error('❌ Fatal error during initialization:', error);
+        console.error('Stack:', error.stack);
+        alert('ERROR: ' + error.message);
+        return false;
     }
 }
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📍 DOMContentLoaded event fired');
+    initApp();
+});
 
 // Fallback in case DOMContentLoaded fires before script loads
 if (document.readyState === 'loading') {
-    console.log('Document still loading...');
+    console.log('⏳ Document still loading, waiting for DOMContentLoaded...');
 } else {
-    console.log('Document already loaded, initializing app...');
-    initApp();
+    console.log('✅ Document already loaded, calling initApp directly...');
+    // Use setTimeout to ensure all event listeners are set up
+    setTimeout(initApp, 100);
 }
